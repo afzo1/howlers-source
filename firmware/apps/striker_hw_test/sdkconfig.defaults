@@ -1,0 +1,20 @@
+# Placa YD-ESP32-S3 N16R8: 16 MB de flash y 8 MB de PSRAM octal.
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
+
+# PSRAM en modo octal. Si no se detecta, el firmware arranca igual y lo informa
+# con el comando "info" (en lugar de reiniciarse en bucle).
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_IGNORE_NOTFOUND=y
+
+# Consola por UART0 (conector "COM" de la placa, chip CH343). Se desactiva la
+# salida secundaria por el USB nativo porque Striker 1 usa GPIO20 (D+) para un
+# motor.
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=115200
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# Reloj del sistema a 1 kHz.
+CONFIG_FREERTOS_HZ=1000
