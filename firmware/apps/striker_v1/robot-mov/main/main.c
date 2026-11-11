@@ -58,16 +58,12 @@ void app_main(void)
 
     
 
-    ///<---------------- Initialize the Wifi ----------------
-    if (wifi_init_station() != ESP_OK){
-        ESP_LOGE("WIFI_INIT", "Could not initialize WiFi station mode...");
-    
-    } else {    
-        ESP_LOGI("WIFI_INIT", "WiFi station mode initialized successfully...");
-        get_ip_address(); ///< Get the IP address of the ESP32
-
-    }
-    ///<----------------------------------------------------
+    // [Correccion 2026-11] Se elimino la primera inicializacion del WiFi
+    // (wifi_init_station() de la HAL). El WiFi se inicializa una sola vez mas
+    // abajo con dev_wifi_init() (comms/wifi_udp), que tiene las credenciales
+    // reales. Inicializarlo dos veces aborta el programa al arrancar:
+    // esp_netif_create_default_wifi_sta() falla con la clave duplicada
+    // "WIFI_STA_DEF" y su assert(netif) reinicia el chip.
     
     
     ///<-------------- Initialize the VL53L1X sensor -----

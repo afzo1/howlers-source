@@ -459,16 +459,8 @@ void gpio_set_low(gpio_t *gpio);
 
 esp_err_t wifi_init_station(void);
 
-/**
- * @brief Get the IP address of the connected WiFi network
- * 
- * This function retrieves the IP address assigned to the WiFi station interface
- * and logs it to the console.
- * 
- * It uses the ESP-IDF API to get the IP information from the network interface
- * and prints it in a human-readable format.
- */
-void get_ip_address(void);
+// [Correccion 2026-11] get_ip_address() ahora solo se declara e implementa en
+// comms/wifi_udp/v1_striker1 (wifi_lib.h / wifi_lib.c).
 
 
 

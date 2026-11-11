@@ -34,19 +34,14 @@ BNO055_t gBNO055;
 
 esp_ip4_addr_t gIpAddr;
 
-<<<<<<< HEAD
+// [Correccion 2026-11] Conflicto de git resuelto conservando la version del
+// commit 8dc4390 (espera de 5 s). La otra version (HEAD) creaba las tareas
+// antes de inicializar drivers y objetos del kernel, y luego otra vez al final.
+// Robot-Navigation, la app hermana, tambien usa esta misma version.
 void app_main(void)
 {
-
-    ///<Create the tasks
-    create_tasks();
-    
-=======
-void app_main(void) 
-{
     vTaskDelay(pdMS_TO_TICKS(5000));
->>>>>>> 8dc43908859b78a722d8c7adda48e5c00fe174b6
-    
+
     ///< Initialize the drivers: LED, UART, BLDC
     init_drivers(); 
 
