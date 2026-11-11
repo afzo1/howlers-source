@@ -27,6 +27,8 @@ mkdir -p "$OUT"
 cp -r "$REPO/firmware" "$OUT/firmware"
 
 APPS="striker_v1/robot-mov striker_v1/wheel-movement striker_v2/Robot-Control striker_v2/Robot-Navigation striker_v2/Velocity-Control bench_pid_autotuning"
+# El firmware de pruebas de hardware solo existe desde la rama entrega-1
+[ -d "$OUT/firmware/apps/striker_hw_test" ] && APPS="$APPS striker_hw_test"
 RESUMEN="$OUT/resumen.txt"
 : > "$RESUMEN"
 
