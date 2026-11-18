@@ -410,27 +410,31 @@ Durante una trayectoria, cada iteración de 1 kHz de Striker 2 ejecuta 5 divisio
 
 ## 7. Trazabilidad: hallazgos → decisiones de diseño de v3
 
+Actualizada el 18-11-2026 con las secciones 2 a 4 de la Entrega 1. Cada sección cierra con su propia tabla de trazabilidad, más detallada.
+
 | Eje | Hallazgos | Decisión para v3 | Se detalla en |
 |---|---|---|---|
-| 1 | C1 | WiFi, LwIP y `esp_timer` en el Core 0; Core 1 exclusivo para el lazo; afinidad explícita en todas las tareas | Sección 3 |
-| 1 | C2, C3, C5, C8 | Buzones para consignas y estado; stream buffer para telemetría; event groups para modos y arranque; una sola tarea de lazo | Sección 3 |
-| 1 | C6, C7 | Propietario único de cada bus o periférico (mutex donde se comparta); ISR de `gptimer` → notificación directa | Sección 3 |
-| 3 | T1, T2, T3 | Activación por `gptimer` en el Core 1; detección de desbordes; Δt medido; tick único de 1 kHz | Sección 3 |
-| 3 | T4, T5 | Periodos (Ti) elegidos según la tasa real del actuador y del sensor; evaluar la sincronización con el evento TEZ del MCPWM | Sección 3 |
-| 3 | T6, T7 | Instrumentación (ciclos, GPIO, estadísticas de ejecución, marca de agua) con `-O2`; una sola versión de IDF | Sección 3 |
-| 2 | A1–A7 | Componentes ESP-IDF reales; 4 capas; interfaces C++ (`ISensorIMU`, `IWheelEncoder`, `IMotor`, `IController`); máquina de estados con Calibración y Autotuning; Kconfig + NVS | Sección 2 |
-| 4 | M1–M5 | IRAM para ISR y lazo rápido; DRAM para estado y covarianzas; PSRAM octal para registros; 16 MB de flash con particiones propias; mapa de pines sin *strapping*, USB ni bus de memoria; ULP para la batería | Sección 4 |
-| 5 | N1–N5 | Solo `float`, verificado por el compilador; benchmark `float` vs Q15/Q16.16 vs esp-dsp; PID con anti-windup; resolución del actuador | Sección 5 |
-| 6 | F1–F6 | Protocolo especificado con validación, confirmación, latido y timeout; rutas en lazo cerrado con pose estimada; telemetría | Sección 5 |
+| 1 | C1 | WiFi, LwIP, `esp_timer` y la tarea de *timers* en el Core 0, con la afinidad fijada en la configuración; Core 1 solo para el tiempo real | [Sección 3.2](03_freertos_tiempo_real.md#32-asignación-de-núcleos-y-tareas) |
+| 1 | C2, C3, C5, C8 | Un dueño por dato; buzones con marca de tiempo; *stream buffer* para las muestras de autotuning y *message buffer* para la telemetría; grupos de eventos para el modo y la barrera de arranque | [Sección 3.4](03_freertos_tiempo_real.md#34-primitivas-de-comunicación) |
+| 1 | C6, C7 | El ULP es el único dueño del ADC1; mutex con herencia de prioridad en `ParamStore` y en cada bus; ningún mutex cruza de núcleo; ISR del `gptimer` → notificación directa | [Secciones 3.5](03_freertos_tiempo_real.md#35-recursos-compartidos-mutex-y-herencia-de-prioridad) y [4.8.2](04_memoria_ulp.md#482-por-qué-el-ulp-es-dueño-de-todo-el-adc1) |
+| 3 | T1, T2, T3 | `gptimer` a 1 kHz en el Core 1 y `vTaskDelayUntil` para 10 y 50 ms; detección de activaciones perdidas; *tick* de 1 kHz | [Sección 3.7](03_freertos_tiempo_real.md#37-activación-periódica-exacta) |
+| 3 | T4, T5 | Lazo de 1 kHz con PWM configurable y comparadores actualizados en TEZ; muestreo uniforme de los encoders en el ULP con base de tiempo calibrada | [Secciones 3.7.3](03_freertos_tiempo_real.md#373-el-lazo-de-ruedas-frente-al-esc-de-50-hz) y [4.8.3](04_memoria_ulp.md#483-programa-del-ulp) |
+| 3 | T6, T7 | Tabla de tiempo real con análisis de tiempo de respuesta; plan de instrumentación con criterios de aceptación; `-O2`; ESP-IDF v5.5.1 | [Secciones 3.8 y 3.9](03_freertos_tiempo_real.md#38-tabla-de-tiempo-real) |
+| 2 | A1–A7 | Componentes ESP-IDF reales; 4 capas; contrato `striker_core` con interfaces C++ verificadas al compilar; un binario para los dos robots (`RobotConfig`); máquina de estados con Calibración y Autotune | [Sección 2](02_arquitectura_capas.md) |
+| 4 | M1–M4 | IRAM para ISR y lazo rápido; DRAM para pilas, estado y covarianzas; PSRAM octal para historiales y red; ejecución desde PSRAM para que escribir la flash no detenga los núcleos; 16 MB con particiones propias; ULP para encoders, batería y vigilancia | [Sección 4](04_memoria_ulp.md) |
+| 4 | M5 | Se conserva el cableado de los robots, con mitigaciones en el arranque; recablear los pines de riesgo queda como decisión del equipo | [Sección 4.7.3](04_memoria_ulp.md#473-pines-de-riesgo-heredados-hallazgo-m5) |
+| 5 | N1–N5 | Solo `float`, verificado por el compilador; benchmark `float` vs Q15/Q16.16 vs esp-dsp; PID con anti-windup; resolución del actuador | Sección 5 (pendiente) |
+| 6 | F1–F6 | Protocolo especificado con validación, confirmación, latido y tiempo de espera; rutas en lazo cerrado con pose estimada; telemetría | Sección 5 (pendiente); supervisión y tiempos de espera ya en la [sección 3.10](03_freertos_tiempo_real.md#310-supervisión-y-respuesta-a-fallas) |
 
 ---
 
 ## 8. Pendientes
 
-1. **Siguiente paso del diagnóstico:** `bench_pid_autotuning` (sí compila), la suite de estimación en C (unas 17 000 líneas propias más CLAPACK, en un repositorio aparte) y los servidores de autotuning de la estación base.
+1. **Bench y suite de estimación:** sus hallazgos que cambian el diseño quedaron en la [sección 2.4.5 y 2.4.6](02_arquitectura_capas.md#245-la-suite-de-estimación-lista-para-usar-salvo-la-memoria-del-ukf). El protocolo de los servidores de autotuning se revisa con la sección 5.
 2. **Datos de hardware por confirmar.** La placa ya está confirmada (YD-ESP32-S3 N16R8, sección 3.3) y el robot heredado ya está disponible. Falta confirmar en el robot, con la [guía de pruebas](guia_pruebas_robot.md):
    - Si es Striker 1 o Striker 2, y su cableado actual.
-   - Modelo de ESC y frecuencias o protocolos que acepta.
+   - Modelo de ESC, frecuencias o protocolos que acepta, y qué hace cuando la señal desaparece.
+   - Tipo de batería y número de celdas (para el divisor de la [sección 4.7.1](04_memoria_ulp.md#471-medición-de-la-batería)).
    - Estado de los puentes «RGB» (GPIO48) e «IN-OUT» (alimentación) de la placa.
 3. **Hecho:** las apps de referencia compilan en la rama `entrega-1` con arreglos mínimos ([01-1](01-1_correcciones_compilacion.md)). Con eso ya se puede medir la línea base del firmware viejo (jitter, WCET) cuando se definan las pruebas de la Entrega 2.
 
