@@ -1,0 +1,4 @@
+# Se genera al compilar a partir de sdkconfig.defaults
+sdkconfig
+sdkconfig.old
+build/

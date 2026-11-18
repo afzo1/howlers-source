@@ -111,20 +111,12 @@ static const char *TAG = "WHEEL MOVEMENT"; ///< Tag for logging
 ///<--------------------------------------------------
 
 ///<-------------- PID configuration -----------------
-<<<<<<< HEAD
-#define PID_KP 1.66f                //< PID Kp parameter
-#define PID_KI 0.6f                 //< PID Ki parameter
-#define PID_KD 0.05f                //< PID Kd parameter
-#define EULER 2.71828               //< Euler's number
-#define PI 3.14159                  //< Pi constant
-#define SAMPLE_RATE 100             //< Sample rate in Hz
-=======
+// [Correccion 2026-11] Conflicto de git resuelto: se conserva la version "main".
 #define PID_KP .01f
 #define PID_KI .01f
 #define PID_KD .001f
 #define EULER 2.71828
 #define PI 3.14159
->>>>>>> main
 ///<--------------------------------------------------
 
 
@@ -236,19 +228,9 @@ void vTaskControl( void * pvParameters );
  */
 void vTaskUART(void * pvParameters);
 
-/**
- * @brief Initialize the WiFi station
- * 
- * This function initializes the WiFi station and connects to the specified SSID and password.
- */
-void wifi_init_sta (void);
-
-/**
- * @brief Get the IP address of the WiFi station
- * 
- * This function retrieves the IP address of the WiFi station and logs it.
- */
-void get_ip_address(void)
+// [Correccion 2026-11] Se eliminaron los prototipos de wifi_init_sta() y
+// get_ip_address() (al segundo le faltaba el ';'): pertenecian a una version
+// WiFi/TCP sin terminar que nadie llama. Ver la reconstruccion de vTaskUART.
 
 
 void app_main(void)
@@ -461,99 +443,12 @@ void vTaskControl( void * pvParameters ){
     }
 }
 
-<<<<<<< HEAD
-// // Task to read data from console
-// void uart_task(void* pvParameters) {
-//     uart_config_t uart_config = {
-//         .baud_rate = 115200,
-//         .data_bits = UART_DATA_8_BITS,
-//         .parity = UART_PARITY_DISABLE,
-//         .stop_bits = UART_STOP_BITS_1,
-//         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
-//     };
-//     uart_param_config(UART_NUM_0, &uart_config);
-//     uart_driver_install(UART_NUM_0, 1024, 0, 0, NULL, 0);
-//     uart_flush(UART_NUM_0);  // Flush UART buffer
-
-//     char data[128];
-//     while (1) {
-//         int len = uart_read_bytes(UART_NUM_0, (uint8_t*)data, sizeof(data) - 1, pdMS_TO_TICKS(1000));
-//         if (len > 0) {
-//             data[len] = '\0';
-            
-
-//             switch (data[0])
-//             {
-//             case 'P': ///< Change the PID parameters
-//                 sscanf(data, "P %f %f %f %f", &pid_param.kp, &pid_param.ki, &pid_param.kd, &pid_param.set_point);
-//                 pid_update_parameters(pid, &pid_param);
-//                 printf("Updated PID values: kp=%.2f, ki=%.2f, kd=%.2f, setpoint=%.2f\n", pid_param.kp, pid_param.ki, pid_param.kd, pid_param.set_point);
-//                 break;
-            
-//             case 'X': ///< Change the duty cycle
-//                 sscanf(data, "X %hd", &duty);
-//                 move_one_time = true; ///< Set the flag to move a bit
-//                 encoder_data.distance = 0; ///< Set the distance to 0
-//                 encoder_data.last_vel = 0; ///< Reset the last velocity
-//                 encoder_data.estimate = 1; ///< Set the flag to estimate the distance
-//                 break;
-
-//             case 'S': ///< Change the setpoint
-//                 sscanf(data, "S %f", &pid_param.set_point);
-//                 pid_update_parameters(pid, &pid_param);
-//                 printf("Updated setpoint: %.2f\n", pid_param.set_point);
-//                 break;
-
-//             case 'D': ///< Move to the right (derecha)
-//                 encoder_data.estimate = 1; ///< Set the flag to estimate the distance
-//                 sscanf(data, "D%hu_%f", &goal_distance, &pid_param.set_point);
-//                 pid_update_parameters(pid, &pid_param);
-//                 start_new_task = true; ///< Set the flag to start a new task
-//                 printf("Moving to the right with goal distance: %hucm and velocity: %.2fcm/s\n", goal_distance, pid_param.set_point);
-//                 break;
-            
-//             case 'I': ///< Move to the left (izquierda)
-//                 encoder_data.estimate = 1; ///< Set the flag to estimate the distance
-//                 sscanf(data, "I%hu_%f", &goal_distance, &pid_param.set_point);
-//                 pid_param.set_point = -pid_param.set_point;
-//                 pid_update_parameters(pid, &pid_param);
-//                 start_new_task = true; ///< Set the flag to start a new task
-//                 printf("Moving to the left with goal distance: %hucm and velocity: %.2fcm/s\n", goal_distance, -pid_param.set_point);
-//                 break;
-//
-//             default:
-//                 break;
-//             }
-//         }
-//     }
-// }
-
-
-// 
-
-void wifi_init_sta (void) {
-    // Initialize NVS
-    esp_netif_init();
-
-    // Initialize the event loop
-    esp_event_loop_create_default();
-
-    // Create the default WiFi station interface
-    esp_netif_create_default_wifi_sta();
-
-    // Initialize the WiFi driver
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&cfg);
-
-
-    // Set the WiFi configuration
-    wifi_config_config_t wifi_config = {
-        .sta = {
-            .ssid = WIFI_SSD,
-            .password = WIFI_PASS,
-            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
-        },
-=======
+// [Correccion 2026-11] Reconstruccion de vTaskUART. El archivo mezclaba, sin
+// resolver, una consola UART (rama "main", la que app_main crea) con una version
+// WiFi/TCP sin terminar (rama HEAD). Se toma el cuerpo de uart_task que la rama
+// HEAD dejo comentado (casos P, X y S) y los casos D e I de la rama "main".
+// El codigo WiFi/TCP (wifi_init_sta, get_ip_address, tcp_server) se elimino:
+// nadie lo llamaba y tenia errores de sintaxis propios.
 // Task to read data from console
 void vTaskUART(void* pvParameters) {
     uart_config_t uart_config = {
@@ -562,97 +457,40 @@ void vTaskUART(void* pvParameters) {
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
->>>>>>> main
     };
+    uart_param_config(UART_NUM_0, &uart_config);
+    uart_driver_install(UART_NUM_0, 1024, 0, 0, NULL, 0);
+    uart_flush(UART_NUM_0);  // Flush UART buffer
 
-    // Initialize the WiFi configuration
-    esp_wifi_set_mode(WIFI_MODE_STA); 
-    esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-    esp_wifi_start();
-
-    ESP_LOGI(TAG, "Connecting to %s...", WIFI_SSD);
-    esp_wifi_connect();
-    
-}
-
-void get_ip_address(void) {
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (netif == NULL) {
-        ESP_LOGI(TAG, "Could not find netif for WIFI_STA_DEF");
-        return;
-    }
-
-    esp_netif_ip_info_t ip_info;
-    esp_netif_get_ip_info(netif, &ip_info);
-    ESP_LOGI(TAG, "\n \nIP Address: " IPSTR, IP2STR(&ip_info.ip));
-}
-
-void tcp_server (void *pvParameters) {
-    char rx_buffer[128];
-
-    struct sockaddr_in server_addr = {
-        .sin_family = AF_INET,
-        .sin_port = htons(PORT),
-        .sin_addr.s_addr = htonl(INADDR_ANY),
-    };
-
-    int listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-    bind(listen_sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    listen(listen_sock, 1);
-
-    ESP_LOGI(TAG, "TCP server listening on port %d", PORT);
-
-    while (1)
-    {
-        struct main sockaddr_in client_addr;
-        uint addr_len = sizeof(client_addr);
-        int sock = accept(listen_sock, (struct sockaddr *)&client_addr, &addr_len);
-        ESP_LOGI(TAG, "Client connected");
-
-        while (1) {
-            int len = recv (sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
+    char data[128];
+    while (1) {
+        int len = uart_read_bytes(UART_NUM_0, (uint8_t*)data, sizeof(data) - 1, pdMS_TO_TICKS(1000));
+        if (len > 0) {
+            data[len] = '\0';
             
-            if (len <= o) break; ///< If there is an error or the connection is closed, break the loop
 
-            rx_buffer[len] = 0; ///< Null-terminate the received data
-
-            ESP_LOGI(TAG, "Received: %s", rx_buffer); ///< Log the received data
-
-            // PRCESS THE DATA.
-            switch (rx_buffer[0])  // Assuming the first character indicates the command type
+            switch (data[0])
             {
-            case 'P':  // Change PID command
-                ESP_LOGI(TAG, "Change PID command received");
-                movement_flags.Word = 0;            // Reset all flags
-                movement_flags.change_PID = 1;      // Set the change_PID flag
-                break;
-
-            case 'X':  // Change Duty command
-                ESP_LOGI(TAG, "Change Duty command received");
-                movement_flags.Word = 0;            // Reset all flags
-                movement_flags.change_Duty = 1;      // Set the change_Duty flag
+            case 'P': ///< Change the PID parameters
+                sscanf(data, "P %f %f %f %f", &pid_param.kp, &pid_param.ki, &pid_param.kd, &pid_param.set_point);
+                pid_update_parameters(pid, &pid_param);
+                printf("Updated PID values: kp=%.2f, ki=%.2f, kd=%.2f, setpoint=%.2f\n", pid_param.kp, pid_param.ki, pid_param.kd, pid_param.set_point);
                 break;
             
-            case 'S':  // Change Set Point command
-                ESP_LOGI(TAG, "Change Set Point command received");
-                movement_flags.Word = 0;            // Reset all flags
-                movement_flags.change_set_point = 1; // Set the change_set_point flag
-                break;
-            
-            case 'D':  // Move Right command
-                ESP_LOGI(TAG, "Move Right command received");
-                movement_flags.Word = 0;            // Reset all flags
-                movement_flags.move_right = 1;       // Set the move_right flag
-
-                break;
-            case 'I':  // Move Left command
-                ESP_LOGI(TAG, "Move Left command received");
-                movement_flags.Word = 0;            // Reset all flags
-                movement_flags.move_left = 1;        // Set the move_left flag
+            case 'X': ///< Change the duty cycle
+                sscanf(data, "X %hd", &duty);
+                move_one_time = true; ///< Set the flag to move a bit
+                encoder_data.distance = 0; ///< Set the distance to 0
+                encoder_data.last_vel = 0; ///< Reset the last velocity
+                encoder_data.estimate = 1; ///< Set the flag to estimate the distance
                 break;
 
-<<<<<<< HEAD
-=======
+            case 'S': ///< Change the setpoint
+                sscanf(data, "S %f", &pid_param.set_point);
+                pid_update_parameters(pid, &pid_param);
+                printf("Updated setpoint: %.2f\n", pid_param.set_point);
+                break;
+
             case 'D': ///< Move to the right (derecha)
                 encoder_data.estimate = 1; ///< Set the flag to estimate the distance
                 sscanf(data, "D%hu_%f", &goal_distance, &pid_param.set_point);
@@ -679,22 +517,13 @@ void tcp_server (void *pvParameters) {
                 encoder_data.last_vel = 0; ///< Reset the last velocity
                 printf("Moving to the left with goal distance: %hucm and velocity: %.2fcm/s\n", goal_distance, -pid_param.set_point);
                 break;
-            
->>>>>>> main
+
             default:
                 break;
             }
-
-            // Enviar las flags de movimiento al cliente
-            send(sock, &movement_flags.Word, sizeof(movement_flags.Word), 0); 
-            
         }
-
-        close(sock); ///< Close the socket
-        ESP_LOGI(TAG, "Client disconnected");   
     }
 }
-
 
 #endif
 
@@ -759,9 +588,12 @@ void app_main(void)
 #endif
 
 
-#if MAIN_MODE == 3
+#if MAIN_MODE == 2  // [Correccion 2026-11] antes 3; Kconfig ofrece 0, 1 y 2
 
-const char *TAG = "AS5600";
+// [Correccion 2026-11] Antes: const char *TAG = "AS5600"; -> chocaba con el TAG
+// global de la linea 72 ("redefinition of TAG"). No se notaba porque este bloque
+// nunca se compilaba (estaba bajo MAIN_MODE == 3). Se renombra a TAG_PROBE.
+static const char *TAG_PROBE = "AS5600";
 AS5600_t gAs5600;     ///< AS5600 object for angle sensor
 
 
@@ -786,7 +618,7 @@ void app_main(void)
     AS5600_SetConf(&gAs5600, conf);
     
 
-    ESP_LOGI(TAG, "Configuration: 0x%04X", conf.WORD); ///< Read the configuration register
+    ESP_LOGI(TAG_PROBE, "Configuration: 0x%04X", conf.WORD); ///< Read the configuration register
     
     // Read the configuration
     uint16_t conf_reg;
@@ -795,11 +627,11 @@ void app_main(void)
     
     if (conf_reg != conf.WORD)
     {
-        ESP_LOGE(TAG, "Configuration error: 0x%04X", conf_reg); ///< Configuration error
+        ESP_LOGE(TAG_PROBE, "Configuration error: 0x%04X", conf_reg); ///< Configuration error
     }
     else
     {
-        ESP_LOGI(TAG, "Configuration OK"); ///< Configuration OK
+        ESP_LOGI(TAG_PROBE, "Configuration OK"); ///< Configuration OK
     }
     
     vTaskDelay(10000 / portTICK_PERIOD_MS); ///< Delay 1 second
@@ -813,7 +645,7 @@ void app_main(void)
     
     while (true)
     {
-        ESP_LOGI(TAG, "AS5600 angle: %0.2f", AS5600_ADC_GetAngle(&gAs5600)); ///< Get the angle from the ADC
+        ESP_LOGI(TAG_PROBE, "AS5600 angle: %0.2f", AS5600_ADC_GetAngle(&gAs5600)); ///< Get the angle from the ADC
         vTaskDelay(SAMPLE_TIME / portTICK_PERIOD_MS); ///< Delay 1 second
     }
     

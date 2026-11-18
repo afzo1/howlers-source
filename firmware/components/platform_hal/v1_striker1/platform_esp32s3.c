@@ -511,19 +511,10 @@ esp_err_t wifi_init_station(void) {
 
 }
 
-void get_ip_address(void) {
-    
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (netif == NULL) {
-        ESP_LOGE("WIFI_INIT", "Could not find netif for WIFI_STA_DEF");
-        return;
-    }
-
-    esp_netif_ip_info_t ip_info;
-    esp_netif_get_ip_info(netif, &ip_info);
-    ESP_LOGI("WIFI_INIT", "\n \nIP: " IPSTR, IP2STR(&ip_info.ip));
-
-}
+// [Correccion 2026-11] get_ip_address() se elimino de esta HAL: estaba definida
+// tambien en comms/wifi_udp/v1_striker1/wifi_lib.c y, como robot-mov compila
+// ambos archivos, el enlazador fallaba con "multiple definition". Se conserva
+// la version de wifi_lib.c (capa de comunicaciones), que hace lo mismo.
 
 
 

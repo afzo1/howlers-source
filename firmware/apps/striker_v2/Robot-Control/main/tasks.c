@@ -194,7 +194,10 @@ void bldc_control_task(void *pvParameters)
     control_set_setpoint(&gCtrl[0], 0);
     control_set_setpoint(&gCtrl[1], 0);
     control_set_setpoint(&gCtrl[2], 0);
-    calculate_trajectory_params(1, M_PI/2, 30, 50, true); // 120 = 2.0943
+    // [Correccion de seguridad 2026-11] Desactivado: esta linea hacia que el
+    // robot recorriera 50 cm a 30 cm/s apenas encendia, sin orden del
+    // operador. Ahora el robot arranca quieto y solo se mueve con un comando.
+    // calculate_trajectory_params(1, M_PI/2, 30, 50, true); // 120 = 2.0943
 
     ///< Initialize some variables for the control task
     float duty[3] = {0};

@@ -1,0 +1,18 @@
+menu "Striker - firmware de pruebas"
+
+    config STRIKER_HW_MAX_PCT
+        int "Potencia maxima permitida en los comandos de motor (%)"
+        range 5 60
+        default 30
+        help
+            Tope de seguridad. Ningun comando puede pedir mas que este porcentaje.
+
+    config STRIKER_HW_MAX_MS
+        int "Duracion maxima de un comando de motor (ms)"
+        range 500 10000
+        default 5000
+        help
+            Pasado este tiempo el motor vuelve a la posicion de parada, aunque
+            nadie lo pida.
+
+endmenu
