@@ -1,0 +1,136 @@
+{
+  "descripcion": "Conjunto de tareas de Striker v3 (Entrega 1, seccion 3). Tiempos en microsegundos. Los C son presupuestos de diseno: en la Entrega 2 se reemplazan por los WCET medidos.",
+  "variantes": [
+    "S1",
+    "S2"
+  ],
+  "nucleos": [
+    {
+      "nombre": "Core 1 (APP_CPU): tiempo real duro",
+      "tareas": [
+        {
+          "nombre": "ISR tick de FreeRTOS",
+          "prioridad": 102,
+          "T": 1000,
+          "C": 3,
+          "interferencia": true
+        },
+        {
+          "nombre": "ISR del gptimer (activa T_ctrl)",
+          "prioridad": 101,
+          "T": 1000,
+          "C": 2,
+          "interferencia": true
+        },
+        {
+          "nombre": "ISR de I2C/UART de la IMU (agregado)",
+          "prioridad": 100,
+          "T": 1000,
+          "C": 5,
+          "interferencia": true
+        },
+        {
+          "nombre": "T_ctrl: lazo de ruedas",
+          "prioridad": 22,
+          "T": 1000,
+          "D": 500,
+          "C": 60,
+          "B": 5
+        },
+        {
+          "nombre": "T_imu: lectura de la IMU",
+          "prioridad": 21,
+          "T": 10000,
+          "D": 5000,
+          "C": 250,
+          "suspension": {
+            "S1": 4000,
+            "S2": 1000
+          },
+          "B": 5
+        },
+        {
+          "nombre": "T_nav: estimación, ruta y cinemática",
+          "prioridad": 20,
+          "T": 10000,
+          "D": 10000,
+          "C": 800,
+          "B": 20
+        },
+        {
+          "nombre": "T_range: sensor de distancia",
+          "prioridad": 18,
+          "T": 50000,
+          "D": 50000,
+          "C": 100,
+          "suspension": 600
+        }
+      ]
+    },
+    {
+      "nombre": "Core 0 (PRO_CPU): comunicaciones y supervisión",
+      "tareas": [
+        {
+          "nombre": "ISR tick de FreeRTOS",
+          "prioridad": 102,
+          "T": 1000,
+          "C": 3,
+          "interferencia": true
+        },
+        {
+          "nombre": "ISR de WiFi y otras (agregado, presupuesto)",
+          "prioridad": 101,
+          "T": 1000,
+          "C": 20,
+          "interferencia": true
+        },
+        {
+          "nombre": "Sistema: WiFi (23), esp_timer (22) y eventos (20), agregado",
+          "prioridad": 23,
+          "T": 10000,
+          "C": 1500,
+          "interferencia": true
+        },
+        {
+          "nombre": "T_supervisor: modos y seguridad",
+          "prioridad": 19,
+          "T": 20000,
+          "D": 20000,
+          "C": 300,
+          "B": 20
+        },
+        {
+          "nombre": "Sistema: LwIP tcpip (18), presupuesto",
+          "prioridad": 18,
+          "T": 10000,
+          "C": 1000,
+          "interferencia": true
+        },
+        {
+          "nombre": "T_net: comandos UDP",
+          "prioridad": 15,
+          "T": 5000,
+          "D": 20000,
+          "C": 200,
+          "B": 20
+        },
+        {
+          "nombre": "T_telemetry: telemetría UDP",
+          "prioridad": 12,
+          "T": 20000,
+          "D": 20000,
+          "C": 500
+        },
+        {
+          "nombre": "T_autotune: cliente TCP del autotuning",
+          "prioridad": 10,
+          "T": 100000,
+          "D": 100000,
+          "C": 2500,
+          "B": 20
+        }
+      ]
+    }
+  ],
+  "nota_T_storage": "T_storage no entra en el analisis: tiene la prioridad mas baja del Core 0 y no tiene plazo; su unico efecto sobre las demas es el mutex de ParamStore, ya contado en B. Con la ejecucion desde PSRAM (CONFIG_SPIRAM_XIP_FROM_PSRAM), escribir la flash no detiene las CPU (seccion 4.3)."
+}
