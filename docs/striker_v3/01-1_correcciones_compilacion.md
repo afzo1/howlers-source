@@ -8,7 +8,7 @@
 
 ## 0. Por qué se hicieron estas correcciones
 
-El diagnóstico (sección 2) encontró que, en la revisión analizada, ninguna de las cinco apps de Striker compilaba. Al consultarlo, el profesor explicó que el repositorio se reorganizó con ayuda de un modelo de IA, que eso pudo introducir errores, y nos indicó trabajar con libertad y hacer las modificaciones pertinentes.
+El diagnóstico (sección 2) encontró que, en la revisión analizada, ninguna de las cinco apps de Striker compilaba. Al consultarlo, el profesor explicó que el repositorio base se había reorganizado hacía poco, que eso pudo introducir errores, y nos indicó trabajar con libertad y hacer las modificaciones pertinentes.
 
 Antes de corregir se comparó cada app con el repositorio del que vino ([`nparra-code/striker-1`](https://github.com/nparra-code/striker-1), commit `dc56d28`, y [`MaverickST/RoboCup_Striker2`](https://github.com/MaverickST/RoboCup_Striker2), commit `e182de0`). El resultado es mixto: unos errores sí aparecieron con la reorganización y otros ya estaban en los repositorios originales (tabla de la sección 2). Se corrigieron todos, porque el objetivo es el mismo en ambos casos.
 
