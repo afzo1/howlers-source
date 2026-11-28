@@ -7,12 +7,15 @@
 static const robot_config_t s_s1 = {
     .id = ROBOT_S1,
     .name = "Striker 1",
-    // control_main.h: PWM_GPIO_R/L/B y PWM_REV_GPIO_R/L/B. main.c: R y L en el
+    // control_main.h: PWM_GPIO_R/L y PWM_REV_GPIO_R/L. main.c: R y L en el
     // grupo MCPWM 0, B en el grupo 1.
+    // B va en GPIO38/39 (cambio de cableado de 2026-11): robot-mov lo pone en
+    // GPIO45/0, que son de strapping, y el robot lo tenia en GPIO35/36, como
+    // bench_pid_autotuning, pero en la N16R8 esos pines son de la PSRAM octal.
     .motor = {
         {.name = "derecho (R)",   .pwm_gpio = 20, .rev_gpio = 21, .mcpwm_group = 0},
         {.name = "izquierdo (L)", .pwm_gpio = 47, .rev_gpio = 48, .mcpwm_group = 0},
-        {.name = "trasero (B)",   .pwm_gpio = 45, .rev_gpio = 0,  .mcpwm_group = 1},
+        {.name = "trasero (B)",   .pwm_gpio = 38, .rev_gpio = 39, .mcpwm_group = 1},
     },
     // control_main.h: AS5600_OUT_GPIO_RIGHT/LEFT/BACK
     .enc_gpio = {5, 6, 7},

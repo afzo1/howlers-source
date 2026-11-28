@@ -73,8 +73,27 @@ static esp_err_t init_channel(int i)
     return mcpwm_timer_start_stop(c->timer, MCPWM_TIMER_START_NO_STOP);
 }
 
+// GPIO26-37 son el bus de la flash y de la PSRAM octal en la placa N16R8: un
+// pulso de motor ahi rompe la comunicacion con la memoria.
+static bool pin_de_memoria(int gpio)
+{
+    return gpio >= 26 && gpio <= 37;
+}
+
 esp_err_t esc_init(const robot_config_t *cfg)
 {
+    // Se revisan los 6 pines antes de crear nada: si uno no sirve, ningun
+    // motor queda configurado y las ordenes de motor se rechazan.
+    for (int i = 0; i < 3; i++) {
+        const motor_cfg_t *m = &cfg->motor[i];
+        if (pin_de_memoria(m->pwm_gpio) || pin_de_memoria(m->rev_gpio)) {
+            printf("ERROR: el motor %d (%s) usa GPIO%d y GPIO%d, pero GPIO26-37 son de la\n"
+                   "       memoria (flash y PSRAM). No se configura ningun motor.\n",
+                   i + 1, m->name, m->pwm_gpio, m->rev_gpio);
+            return ESP_ERR_INVALID_ARG;
+        }
+    }
+
     s_cfg = cfg;
     for (int i = 0; i < 3; i++) {
         esp_err_t err = init_channel(i);

@@ -63,14 +63,16 @@ Durante `motor` y `girar` se imprime la velocidad (rpm) que mide cada encoder, p
 |---|---|---|
 | Motor 1: acelerador / sentido | GPIO20 / GPIO21 (derecho) | GPIO17 / GPIO18 |
 | Motor 2: acelerador / sentido | GPIO47 / GPIO48 (izquierdo) | GPIO8 / GPIO3 |
-| Motor 3: acelerador / sentido | GPIO45 / GPIO0 (trasero) | GPIO46 / GPIO9 |
+| Motor 3: acelerador / sentido | GPIO38 / GPIO39 (trasero; ver la nota) | GPIO46 / GPIO9 |
 | Encoders AS5600 (analógicos) | GPIO5, 6, 7 | GPIO6, 7, 1 |
 | IMU | TM151 por UART: TX GPIO17, RX GPIO18 | BNO055 por I2C: SDA 12, SCL 11, RST 13 |
 | Distancia VL53L1X | SDA 41, SCL 42 | SDA 39, SCL 38, XSHUT 41 |
 | Pulso de parada / 100 % | 700 µs / 2400 µs | 1000 µs / 2400 µs |
 | Sentido: adelante / reversa | 860 µs / 2220 µs | 1980 µs / 1420 µs |
 
-Las señales a los ESC son pulsos a 50 Hz, igual que en los firmwares originales. GPIO0, 3, 45 y 46 son pines de *strapping* y GPIO20 es D+ del USB nativo (hallazgo M5 del diagnóstico): por eso conviene cargar el programa con la batería desconectada.
+Las señales a los ESC son pulsos a 50 Hz, igual que en los firmwares originales. GPIO3 y 46 (Striker 2) son pines de *strapping* y GPIO20 (Striker 1) es D+ del USB nativo (hallazgo M5 del diagnóstico): por eso conviene cargar el programa con la batería desconectada.
+
+**Motor 3 de Striker 1.** Es el único pin de la tabla que no sale de `robot-mov`. Ese firmware lo pone en GPIO45 y GPIO0, dos pines de *strapping* ([`control_main.h:57-58`](https://github.com/afzo1/howlers-source/blob/0451897bc2c902e6e356acf153d503e0143c7b3a/firmware/apps/striker_v1/robot-mov/main/include/control_main.h#L57-L58)), y el robot lo tenía cableado en GPIO35 y GPIO36, como `bench_pid_autotuning` ([`control_main.h:56-57`](https://github.com/afzo1/howlers-source/blob/0451897bc2c902e6e356acf153d503e0143c7b3a/firmware/apps/bench_pid_autotuning/main/include/control_main.h#L56-L57)). En la N16R8, GPIO35–37 son parte del bus de la PSRAM octal: con el ESC ahí, la PSRAM no se detecta y el motor no recibe señal. Desde noviembre de 2026, su conector va en GPIO38 (acelerador, el cable que estaba en 35) y GPIO39 (sentido, el que estaba en 36), con los pasos de la [sección 1.9 de la guía](../../../docs/striker_v3/guia_pruebas_robot.md#19-striker-1-el-motor-3-va-en-gpio-38-y-39). Además, `esc_init` no configura ningún motor si alguno de sus pines está en GPIO26–37 (bus de la flash y la PSRAM).
 
 ## Archivos
 
