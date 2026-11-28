@@ -226,7 +226,8 @@ static int cmd_identificar(int argc, char **argv)
         }
     }
     printf("Prueba PASIVA (solo se mide tension, no se envia nada a los pines).\n");
-    printf("Durante %d s gira con la mano cada rueda, una vuelta lenta cada una.\n", secs);
+    printf("Durante %d s: si las ruedas giran a mano, gira cada una una vuelta lenta.\n", secs);
+    printf("Si no giran (Striker 1), dejalas quietas: la conclusion sale igual.\n");
     printf("Presiona Enter para terminar antes.\n");
     console_flush_keys();
 

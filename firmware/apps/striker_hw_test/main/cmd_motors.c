@@ -48,17 +48,38 @@ static bool check_ready(void)
     return true;
 }
 
+/* Actualiza el minimo y el maximo de tension de un encoder (ignora lecturas fallidas). */
+static void track_range(int mv, int *mn, int *mx)
+{
+    if (mv < 0) {
+        return;
+    }
+    if (mv < *mn) {
+        *mn = mv;
+    }
+    if (mv > *mx) {
+        *mx = mv;
+    }
+}
+
 /*
  * Mantiene la orden durante ms milisegundos midiendo los encoders.
  * active[i] indica que motores tienen orden (solo para el resumen).
+ * Al final muestra, por encoder, la velocidad media, la tension minima y maxima
+ * y las vueltas que dio. Con eso se conoce el rango de salida del AS5600 y la
+ * relacion entre vueltas del encoder y de la rueda sin girar las ruedas a mano
+ * (en Striker 1 no se puede).
  */
 static void run_and_measure(int ms, const bool active[3])
 {
     bool enc = encoders_ready();
-    float prev[3] = {0}, acc_win[3] = {0}, acc_tail[3] = {0};
+    float prev[3] = {0}, acc_win[3] = {0}, acc_tail[3] = {0}, acc_all[3] = {0};
+    int mv_min[3] = {100000, 100000, 100000}, mv_max[3] = {-1, -1, -1};
     if (enc) {
         for (int i = 0; i < 3; i++) {
-            prev[i] = encoder_angle_deg(i, NULL);
+            int mv = -1;
+            prev[i] = encoder_angle_deg(i, &mv);
+            track_range(mv, &mv_min[i], &mv_max[i]);
         }
     }
     int64_t t0 = esp_timer_get_time();
@@ -77,7 +98,9 @@ static void run_and_measure(int ms, const bool active[3])
         }
         if (enc) {
             for (int i = 0; i < 3; i++) {
-                float a = encoder_angle_deg(i, NULL);
+                int mv = -1;
+                float a = encoder_angle_deg(i, &mv);
+                track_range(mv, &mv_min[i], &mv_max[i]);
                 if (a < 0 || prev[i] < 0) {
                     prev[i] = a;
                     continue;
@@ -86,6 +109,7 @@ static void run_and_measure(int ms, const bool active[3])
                 if (d > 180.0f) d -= 360.0f;   // la lectura paso de 359 a 0 grados
                 if (d < -180.0f) d += 360.0f;  // la lectura paso de 0 a 359 grados
                 acc_win[i] += d;
+                acc_all[i] += d;
                 if (now >= tail_start) {
                     acc_tail[i] += d;
                 }
@@ -116,6 +140,17 @@ static void run_and_measure(int ms, const bool active[3])
         }
         printf("\n");
         (void)active;
+    }
+    if (enc) {
+        printf("Tension de cada encoder durante la orden (minimo..maximo) y vueltas que dio:\n");
+        for (int i = 0; i < 3; i++) {
+            if (mv_max[i] < 0) {
+                printf("  E%d: sin lecturas\n", i + 1);
+            } else {
+                printf("  E%d: %4d..%4d mV  %+8.2f vueltas\n", i + 1, mv_min[i], mv_max[i], acc_all[i] / 360.0f);
+            }
+        }
+        printf("En el encoder que giro: de ~330 a ~2970 mV = modo 10-90 %%; minimo cerca de 0 mV = modo 0-100 %%.\n");
     }
 }
 

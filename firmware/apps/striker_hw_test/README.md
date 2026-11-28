@@ -43,10 +43,10 @@ Conectar la placa por el conector USB-C marcado **COM** (chip CH343), no por el 
 |---|---|
 | `help` | Lista los comandos |
 | `info` | Datos de la placa y robot elegido |
-| `identificar [segundos]` | Prueba pasiva en GPIO1, 5, 6 y 7: gira las ruedas con la mano mientras mide |
+| `identificar [segundos]` | Prueba pasiva en GPIO1, 5, 6 y 7. Si las ruedas giran a mano, se giran mientras mide; si no (Striker 1), se dejan quietas |
 | `robot s1` · `robot s2` · `robot ninguno` | Elige el robot; se guarda y la placa se reinicia |
 | `pines` | Pines que usa el robot elegido |
-| `encoders [segundos]` | Ángulo de los tres encoders, 5 veces por segundo |
+| `encoders [segundos]` | Ángulo y tensión de los tres encoders, 5 veces por segundo; al final, el mínimo y el máximo de cada uno (con las ruedas quietas, su diferencia es el ruido) |
 | `i2c` | Busca dispositivos en cada bus I2C del robot |
 | `imu [segundos]` | BNO055: orientación y estado de calibración. TM151: le pide los ángulos, como `robot-mov`, y los muestra |
 | `wifi` | Lista las redes WiFi cercanas y su señal |
@@ -55,7 +55,7 @@ Conectar la placa por el conector USB-C marcado **COM** (chip CH343), no por el 
 | `motor <1-3> <%> [ms] [rev]` | Mueve un motor. Ejemplo: `motor 1 10 1500` |
 | `girar <%> [ms] [rev]` | Misma orden a los tres motores |
 
-Durante `motor` y `girar` se imprime la velocidad (rpm) que mide cada encoder, para saber qué encoder corresponde a cada motor y en qué sentido gira.
+Durante `motor` y `girar` se imprime la velocidad (rpm) que mide cada encoder, para saber qué encoder corresponde a cada motor y en qué sentido gira. Al terminar la orden se muestran, por encoder, la velocidad media, la tensión mínima y máxima y las vueltas que dio. Así se mide, sin girar las ruedas a mano (en Striker 1 no giran), el rango de salida del AS5600 (de ~330 a ~2970 mV en el modo 10–90 %, desde casi 0 mV en el modo 0–100 %) y cuántas vueltas da el encoder por cada vuelta de la rueda.
 
 ## Pines (tomados de los firmwares originales)
 

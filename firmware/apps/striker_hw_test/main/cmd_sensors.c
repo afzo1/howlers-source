@@ -32,8 +32,10 @@ static int cmd_encoders(int argc, char **argv)
         return 1;
     }
     printf("Angulo de cada encoder (0..360 grados) 5 veces por segundo durante %d s.\n", secs);
-    printf("Gira cada rueda con la mano. Presiona Enter para terminar.\n");
+    printf("Con las ruedas quietas sirve para ver el ruido. Si una rueda gira a mano, girala.\n");
+    printf("Presiona Enter para terminar.\n");
     console_flush_keys();
+    int mn[3] = {100000, 100000, 100000}, mx[3] = {-1, -1, -1};
     for (int k = 0; k < secs * 5; k++) {
         for (int i = 0; i < 3; i++) {
             int mv = 0;
@@ -42,6 +44,12 @@ static int cmd_encoders(int argc, char **argv)
                 printf("E%d (GPIO%-2d):  error     ", i + 1, cfg->enc_gpio[i]);
             } else {
                 printf("E%d (GPIO%-2d): %6.1f gr %4d mV   ", i + 1, cfg->enc_gpio[i], a, mv);
+                if (mv < mn[i]) {
+                    mn[i] = mv;
+                }
+                if (mv > mx[i]) {
+                    mx[i] = mv;
+                }
             }
         }
         printf("\n");
@@ -49,6 +57,15 @@ static int cmd_encoders(int argc, char **argv)
             break;
         }
         vTaskDelay(pdMS_TO_TICKS(200));
+    }
+    printf("Minimo y maximo de cada encoder en esta medicion:\n");
+    for (int i = 0; i < 3; i++) {
+        if (mx[i] < 0) {
+            printf("  E%d (GPIO%-2d): sin lecturas\n", i + 1, cfg->enc_gpio[i]);
+        } else {
+            printf("  E%d (GPIO%-2d): %4d..%4d mV (variacion %d mV)\n", i + 1, cfg->enc_gpio[i], mn[i], mx[i],
+                   mx[i] - mn[i]);
+        }
     }
     return 0;
 }
