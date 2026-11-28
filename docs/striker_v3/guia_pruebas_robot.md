@@ -243,7 +243,7 @@ Mira los cables que llegan a los pines **5V** (a veces rotulado 5Vin) y **3V3** 
 
 Con la batería y el USB desconectados, sigue cada cable desde el pin hasta su otro extremo. Si no se ve, usa el multímetro en continuidad (el modo que pita): una punta en el pin de la placa y la otra en el extremo que sospechas.
 
-En Striker 1 llega al pin 3V3 un cable rojo desde cada motor. Si ese mismo cable trae un hilo a GND y otro a GPIO 5, 6 o 7, es el cable del encoder de ese motor: toma energía de la placa. Si un hilo del mismo cable va a GPIO 20, 21, 47, 48, 45 o 0, es de un ESC: sigue 1.4.1. Si dudas, haz la prueba de tensión de [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa) (pasos 2 a 4): un cable que solo toma energía de la placa marca 0 V.
+En Striker 1 llega al pin 3V3 un cable rojo desde cada motor. Si ese mismo cable trae un hilo a GND y otro a GPIO 5, 6 o 7, es el cable del encoder de ese motor: toma energía de la placa. Si un hilo del mismo cable va a GPIO 20, 21, 47, 48, 38 o 39 (o a 35 y 36: ver [1.9](#19-striker-1-el-motor-3-va-en-gpio-38-y-39)), es de un ESC: sigue 1.4.1. Si dudas, haz la prueba de tensión de [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa) (pasos 2 a 4): un cable que solo toma energía de la placa marca 0 V.
 
 Al pin 5V de Striker 1 llega además un cable desde el lado de la batería: ese sí lleva energía a la placa. Antes de conectar la batería por primera vez, mídelo con [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa).
 
@@ -285,7 +285,7 @@ Los dos robots usan la misma placa pero distintos sensores y pines. La pista má
 | | Striker 1 | Striker 2 |
 |---|---|---|
 | IMU | **TM151** (marca Syd Dynamics), conectada por UART a GPIO17 y GPIO18 | **BNO055** (chip de Bosch, en una placa pequeña), conectada por I2C a GPIO11, 12 y 13 |
-| Señales de los motores | GPIO20, 21, 47, 48, 45 y 0 | GPIO17, 18, 8, 3, 46 y 9 |
+| Señales de los motores | GPIO20, 21, 47, 48, 38 y 39 (ver [1.9](#19-striker-1-el-motor-3-va-en-gpio-38-y-39)) | GPIO17, 18, 8, 3, 46 y 9 |
 | Encoders AS5600 (salida analógica) | GPIO5, 6 y 7 | GPIO6, 7 y 1 |
 | Sensor de distancia VL53L1X | GPIO41 y 42 | GPIO39 y 38 |
 
@@ -314,6 +314,20 @@ El firmware v3 convierte la velocidad del robot en la de cada rueda con estas me
 2. Con el multímetro en continuidad, comprueba que GPIO 14 **no** pita ni contra GND ni contra 3V3.
 
 Si está ocupado, elige otro pin libre que no sea de arranque, USB, flash ni PSRAM (evita 0, 3, 19, 20, 26–37 y 43–46) y anótalo.
+
+### 1.9 Striker 1: el motor 3 va en GPIO 38 y 39
+
+Cada ESC (el controlador de un motor) recibe dos cables de señal, *potencia* y *sentido*, en dos pines vecinos de la placa. En Striker 1, `striker_hw_test` los espera así: motor 1 en GPIO 20 y 21, motor 2 en GPIO 47 y 48, y motor 3 en **GPIO 38 (potencia) y 39 (sentido)**.
+
+El motor 3 venía cableado en GPIO 35 y 36, como lo usa el banco de autotuning ([`control_main.h:56-57`](https://github.com/afzo1/howlers-source/blob/0451897bc2c902e6e356acf153d503e0143c7b3a/firmware/apps/bench_pid_autotuning/main/include/control_main.h#L56-L57)). En esta placa, GPIO 35, 36 y 37 son parte del bus de la PSRAM: con un cable ahí, `info` dice `PSRAM: NO DETECTADA` y el motor 3 no recibe señal. El firmware original lo pone en GPIO 45 y 0 ([`control_main.h:57-58`](https://github.com/afzo1/howlers-source/blob/0451897bc2c902e6e356acf153d503e0143c7b3a/firmware/apps/striker_v1/robot-mov/main/include/control_main.h#L57-L58)), que son pines de *strapping*: la placa los lee al encender para decidir cómo arrancar, y un ESC conectado ahí puede impedir que arranque (hallazgo M5 del diagnóstico). GPIO 38 y 39 no tienen ninguno de esos dos problemas.
+
+Si el conector del motor 3 está en 35 y 36, muévelo así:
+1. Desconecta la batería y el USB.
+2. Ubica los pines: el número de cada uno está impreso a su lado, en este orden: … 40, 39, 38, 37, 36, 35, 0, 45 … Mira que 38 y 39 estén libres.
+3. Corre el conector tres posiciones, sin voltearlo: el cable que estaba en 35 pasa a 38 y el que estaba en 36 pasa a 39.
+4. Revisa que no quede nada en GPIO 35, 36 ni 37.
+
+En la [fase 3](#fase-3--pruebas-sin-motores), `info` debe mostrar la PSRAM de 8 MB y `pines`, el motor 3 en GPIO38 y GPIO39.
 
 ---
 
@@ -622,7 +636,7 @@ La placa queda con el firmware de pruebas, que no mueve nada al encender. Puedes
 | `Failed to connect` al cargar | La placa no entró en modo de carga | Mantén presionado **BOOT**, presiona y suelta **RST**, suelta **BOOT** y repite el comando |
 | La carga falla solo con el robot conectado, o el monitor muestra `waiting for download` al arrancar | Un cable del robot fuerza un pin de *strapping* (GPIO0, 3, 45 o 46) | Asegúrate de que la batería esté desconectada. Si sigue, consulta antes de desconectar cables: anota el mensaje completo |
 | El monitor muestra caracteres raros | Velocidad equivocada | Usa el monitor de ESP-IDF; la velocidad es 115200 |
-| `info` dice `PSRAM: NO DETECTADA` | La placa no es N16R8 (tiene otra PSRAM o ninguna), o el programa se compiló con otra versión de ESP-IDF | 1) Si `info` muestra una versión distinta de v5.5.x, corrige eso primero (fila de arriba) y repite `info`. 2) Con la batería desconectada y el monitor cerrado: `python -m esptool --chip esp32s3 -p COM5 flash-id`. Anota las líneas `Features` (una N16R8 dice `Embedded PSRAM 8MB`) y `Detected flash size`. 3) Foto del módulo metálico (dice el modelo, por ejemplo `N16R8`). 4) Copia las líneas del arranque que mencionan `psram`. Si esptool dice `Embedded PSRAM 8MB` y aun así `info` dice `NO DETECTADA`, la placa está bien y el problema está en la compilación |
+| `info` dice `PSRAM: NO DETECTADA` | Hay un cable en GPIO 35, 36 o 37 (líneas de la PSRAM), la placa no es N16R8 (tiene otra PSRAM o ninguna), o el programa se compiló con otra versión de ESP-IDF | 1) Con la batería y el USB desconectados, mira que no haya nada en GPIO 35, 36 ni 37 (en Striker 1, el motor 3 estaba ahí: [1.9](#19-striker-1-el-motor-3-va-en-gpio-38-y-39)). 2) Si `info` muestra una versión distinta de v5.5.x, corrige eso (fila de arriba) y repite `info`. 3) Con la batería desconectada y el monitor cerrado: `python -m esptool --chip esp32s3 -p COM5 flash-id`. Anota las líneas `Features` (una N16R8 dice `Embedded PSRAM 8MB`) y `Detected flash size`. 4) Foto del módulo metálico (dice el modelo, por ejemplo `N16R8`). 5) Copia las líneas del arranque que mencionan `psram`. esptool lee `Embedded PSRAM 8MB` de los eFuse (datos grabados de fábrica): dice que el chip trae la PSRAM, no que funcione. Si lo dice y aun así `info` dice `NO DETECTADA`, el problema está en un cable en GPIO 35–37 o en la compilación |
 | `info` dice `CAIDA DE TENSION (brownout)` | Alimentación insuficiente | Prueba otro puerto USB o cable. Si pasó al arrancar un motor, revisa la batería y no sigas con la fase 4 |
 | `identificar` o `encoders` no ven señal solo con USB | Los sensores se alimentan de la batería del robot | Con el robot elegido y **desarmado**, conecta la batería (si la sección 1.4 lo permite, o después de 1.4.1) y repite. Los motores no se mueven: reciben pulsos de parada |
 | `imu` dice `Bytes recibidos: 0` | La IMU no tiene alimentación solo con el USB, o TX y RX están cruzados | Mide su alimentación (P6). Si es 0 V, repite en el paso 4.2, con la batería conectada y los motores desarmados |
@@ -631,7 +645,7 @@ La placa queda con el firmware de pruebas, que no mueve nada al encender. Puedes
 | Un encoder no cambia al girar su rueda | Cable suelto, imán del sensor movido o sensor dañado | Anótalo con una foto del sensor |
 | Dos ruedas mueven el mismo encoder | Cables de encoder cruzados | Anótalo: es parte del mapa del robot |
 | El ESC pita sin parar y el motor no responde | El ESC no reconoce la señal de parada | Anota el patrón de pitidos y, si se puede, el modelo del ESC. **No intentes calibrarlo** |
-| Un motor no gira ni a 30 % | Motor o ESC sin energía, cable suelto o ESC dañado | Desarma, desconecta la batería y revisa los conectores |
+| Un motor no gira ni a 30 % | Su conector está en pines distintos de los que muestra `pines`, el motor o el ESC no tienen energía, hay un cable suelto o el ESC está dañado | Desarma, desconecta la batería y revisa los conectores: los dos cables de señal del ESC deben llegar a los pines que muestra `pines` (en Striker 1, el motor 3 va en GPIO 38 y 39: [1.9](#19-striker-1-el-motor-3-va-en-gpio-38-y-39)) |
 | Un motor sigue girando después de la orden | No debería pasar | **Desconecta la batería** y anota todo lo que pasó |
 | `rev` no cambia el sentido | La línea de sentido del ESC no está conectada o el ESC no la usa | Anótalo |
 | Olor, humo o algo caliente | Falla eléctrica | **Desconecta la batería**, aléjate y avisa al encargado |
