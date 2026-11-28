@@ -2,7 +2,7 @@
 
 **Proyecto:** firmware unificado Striker v3 · Howlers FC / Robosyn · Universidad de Antioquia
 **Para quién:** cualquier integrante del equipo, aunque nunca haya programado un ESP32.
-**Fecha:** 11 de noviembre de 2026 · **Actualizada:** 27 de noviembre de 2026 (mediciones de la Entrega 2, batería 6S y cables de alimentación en 3V3) · **Firmware de pruebas:** [`firmware/apps/striker_hw_test`](../../firmware/apps/striker_hw_test/README.md)
+**Fecha:** 11 de noviembre de 2026 · **Actualizada:** 27 de noviembre de 2026 (mediciones de la Entrega 2, batería 6S, cables que llevan energía a la placa y ruedas de Striker 1 que no giran a mano) · **Firmware de pruebas:** [`firmware/apps/striker_hw_test`](../../firmware/apps/striker_hw_test/README.md)
 
 ---
 
@@ -31,7 +31,7 @@ El programa de pruebas (`striker_hw_test`) no mueve nada al encender, solo mueve
 | Fase | Qué se hace | ¿Batería conectada? |
 |---|---|---|
 | [Fase 0](#fase-0--preparar-el-computador-una-sola-vez) | Preparar el computador (una sola vez) | — |
-| [Fase 1](#fase-1--inspeccionar-el-robot-sin-conectar-nada) | Inspeccionar y medir el robot, sin conectar nada | No (salvo en [1.4.1](#141-si-un-cable-lleva-energía-al-pin-3v3), si hace falta) |
+| [Fase 1](#fase-1--inspeccionar-el-robot-sin-conectar-nada) | Inspeccionar y medir el robot, sin conectar nada | No (salvo en [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa), si hace falta) |
 | [Fase 2](#fase-2--primera-conexión-por-usb) | Conectar por USB, ver qué programa trae, guardarlo y cargar el de pruebas | **No** |
 | [Fase 3](#fase-3--pruebas-sin-motores) | Pruebas sin motores | No (salvo que los sensores la necesiten) |
 | [Fase 4](#fase-4--pruebas-de-motores-ruedas-en-el-aire) | Pruebas de motores, con las ruedas en el aire | **Sí** |
@@ -243,36 +243,40 @@ Mira los cables que llegan a los pines **5V** (a veces rotulado 5Vin) y **3V3** 
 
 Con la batería y el USB desconectados, sigue cada cable desde el pin hasta su otro extremo. Si no se ve, usa el multímetro en continuidad (el modo que pita): una punta en el pin de la placa y la otra en el extremo que sospechas.
 
-En Striker 1 llega al pin 3V3 un cable rojo desde cada motor. Si ese mismo cable trae un hilo a GND y otro a GPIO 5, 6 o 7, es el cable del encoder de ese motor: toma energía de la placa. Si un hilo del mismo cable va a GPIO 20, 21, 47, 48, 45 o 0, es de un ESC: sigue 1.4.1. Si dudas, haz la prueba de tensión de [1.4.1](#141-si-un-cable-lleva-energía-al-pin-3v3) (pasos 2 a 4): un cable que solo toma energía de la placa marca 0 V.
+En Striker 1 llega al pin 3V3 un cable rojo desde cada motor. Si ese mismo cable trae un hilo a GND y otro a GPIO 5, 6 o 7, es el cable del encoder de ese motor: toma energía de la placa. Si un hilo del mismo cable va a GPIO 20, 21, 47, 48, 45 o 0, es de un ESC: sigue 1.4.1. Si dudas, haz la prueba de tensión de [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa) (pasos 2 a 4): un cable que solo toma energía de la placa marca 0 V.
+
+Al pin 5V de Striker 1 llega además un cable desde el lado de la batería: ese sí lleva energía a la placa. Antes de conectar la batería por primera vez, mídelo con [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa).
 
 | Lo que encuentras | Qué hacer |
 |---|---|
 | Ningún cable lleva energía a la placa (los que hay en 5V o 3V3 van a sensores) | Puedes conectar USB y batería a la vez |
-| Un cable lleva energía al pin **5V** y el puente **IN-OUT está abierto** (como viene de fábrica) | Puedes conectar USB y batería a la vez. Con el puente abierto, el USB y el pin 5V están separados por diodos y no se alimentan entre sí |
-| Un cable lleva energía al pin **5V** y el puente **IN-OUT está soldado** | Haz las fases 2 y 3 solo con USB y, antes de la fase 4, sigue [1.4.1](#141-si-un-cable-lleva-energía-al-pin-3v3): con el puente soldado, el USB y la fuente del robot quedan conectados directamente |
-| Un cable lleva energía al pin **3V3** | Fases 2 y 3 solo con USB y, antes de la fase 4, [1.4.1](#141-si-un-cable-lleva-energía-al-pin-3v3) |
+| Un cable lleva energía al pin **5V** y el puente **IN-OUT está abierto** (como viene de fábrica) | Mídelo una vez con [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa) antes de conectar la batería. Si da 4,5–5,5 V, puedes conectar USB y batería a la vez: con el puente abierto, el USB y el pin 5V están separados por diodos y no se alimentan entre sí |
+| Un cable lleva energía al pin **5V** y el puente **IN-OUT está soldado** | Haz las fases 2 y 3 solo con USB y, antes de la fase 4, sigue [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa): con el puente soldado, el USB y la fuente del robot quedan conectados directamente |
+| Un cable lleva energía al pin **3V3** | Fases 2 y 3 solo con USB y, antes de la fase 4, [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa) |
 | No logras saber de dónde viene | Fases 2 y 3 solo con USB; envía fotos al equipo y consulta antes de la fase 4 |
 
-#### 1.4.1 Si un cable lleva energía al pin 3V3
+#### 1.4.1 Medir un cable que lleva energía a la placa
 
-(Vale también para el pin 5V con el puente IN-OUT soldado.) La regla es: **con el USB conectado, la placa se alimenta solo del USB.** Ese cable se desconecta durante las pruebas y, antes, se mide qué tensión entrega.
+Hazlo una vez, antes de conectar la batería por primera vez, con cada cable que lleve energía a los pines 5V o 3V3: así se sabe qué tensión entrega antes de que llegue a la placa. Después:
+- si el cable va al pin 3V3, o al 5V con el puente IN-OUT soldado: **con el USB conectado, la placa se alimenta solo del USB**, y ese cable queda desconectado durante las pruebas;
+- si va al pin 5V con el puente abierto y da 4,5–5,5 V, se vuelve a conectar y puede quedar puesto junto con el USB.
 
 1. **Si es el cable rojo de un ESC,** mira su etiqueta (foto de 1.1). Si dice BEC (por ejemplo «BEC 5V/2A»), ese ESC entrega unos 5 V por el cable rojo: con la batería conectada, llegarían al pin 3V3 y dañarían al instante el ESP32-S3 (admite como máximo 3,6 V) y los sensores. Sigue con el paso 2 sin conectar la batería con ese cable puesto.
 2. Con la batería y el USB desconectados, **desconecta de la placa todos los cables que llevan energía** (solo los rojos: los negros, GND, se quedan) y cubre sus puntas con cinta aislante. Si el rojo va en un mismo conector con la señal (el cable de servo de un ESC), desconecta ese conector completo. Si un cable está soldado, no lo cortes ni lo desueldes: toma fotos y consulta.
 3. Con el multímetro en continuidad, comprueba que el GND de la placa sigue unido al negativo de la batería (en el conector de la batería del lado del robot, con la batería desconectada): debe pitar. Si no pita, consulta: los ESC necesitan esa tierra común para entender los pulsos.
-4. Con el robot sobre el soporte, las ruedas en el aire y el USB **desconectado**, conecta la batería, con la mano lista para desconectarla. La placa queda apagada y los ESC no reciben pulsos, así que no pueden arrancar (pueden pitar: es normal). Mide con el multímetro en voltaje DC: punta negra en un GND de la placa (o en el cable negro del mismo conector) y punta roja en la punta de cada cable desconectado; destápala solo para medir y vuelve a taparla. Después desconecta la batería.
+4. Con el robot sobre el soporte, las ruedas en el aire y el USB **desconectado**, conecta la batería, con la mano lista para desconectarla. La placa queda apagada y los ESC no reciben pulsos, así que no pueden arrancar (pueden pitar: es normal). Mide con el multímetro en voltaje DC: punta negra en un GND de la placa (o en el cable negro del mismo conector) y punta roja en la punta de cada cable desconectado; destápala solo para medir y vuelve a taparla. Si un cable sale directo de la batería, sin pasar por un regulador, tendrá los ~25 V de la batería: que su punta no toque nada. Después desconecta la batería.
 5. Decide con esta tabla:
 
-| Tensión medida | Qué es | Qué hacer |
-|---|---|---|
-| 3,2–3,4 V | Un regulador de 3,3 V | Es correcto para el pin 3V3. Durante las pruebas con USB, déjalo desconectado y aislado. Para que el robot ande sin USB (rutas en el piso de la Entrega 2), se vuelve a conectar con el USB desconectado |
-| 4,5–6,5 V | Una salida de 5 V, como el BEC de un ESC | **Nunca al pin 3V3.** Déjalo desconectado y consulta: su lugar sería el pin 5V, con el puente IN-OUT abierto. Si es el cable de servo de un ESC, ese motor no se prueba hasta resolverlo |
-| 0 V | No lleva energía (o el interruptor del robot, si tiene, estaba apagado) | Revisa a dónde va. Si va a un sensor o es el cable rojo de un ESC sin BEC, vuelve a conectarlo, con la batería y el USB desconectados |
-| Otro valor | Desconocido | Déjalo desconectado y consulta |
+| Pin donde estaba | Tensión medida | Qué es | Qué hacer |
+|---|---|---|---|
+| 5V | 4,5–5,5 V | Un regulador o el BEC de un ESC, de 5 V | Es correcto para el pin 5V. Con el puente IN-OUT **abierto**, vuelve a conectarlo (con la batería y el USB desconectados) y haz la fase 4 con USB y batería a la vez. Con el puente **soldado**, déjalo desconectado mientras uses el USB y consulta si conviene abrir el puente |
+| 3V3 | 3,2–3,4 V | Un regulador de 3,3 V | Es correcto para el pin 3V3. Durante las pruebas con USB, déjalo desconectado y aislado. Para que el robot ande sin USB (rutas en el piso de la Entrega 2), se vuelve a conectar con el USB desconectado |
+| 3V3 | 4,5–6,5 V | Una salida de 5 V, como el BEC de un ESC | **Nunca al pin 3V3.** Déjalo desconectado y consulta: su lugar sería el pin 5V, con el puente IN-OUT abierto. Si es el cable de servo de un ESC, ese motor no se prueba hasta resolverlo |
+| Cualquiera | Más de 6,5 V (por ejemplo, ~22–25 V) | La batería directa o un regulador mal ajustado | **Nunca a la placa:** la dañaría al instante. Déjalo desconectado y aislado, y consulta |
+| Cualquiera | 0 V | No lleva energía (o el interruptor del robot, si tiene, estaba apagado) | Revisa a dónde va. Si va a un sensor o es el cable rojo de un ESC sin BEC, vuelve a conectarlo, con la batería y el USB desconectados |
+| Cualquiera | Otro valor | Desconocido | Déjalo desconectado y consulta |
 
-Si el cable estaba en el pin 5V (con el puente soldado), lo esperado es 4,5–5,5 V: déjalo desconectado mientras uses el USB y consulta si conviene abrir el puente.
-
-6. Pega en la placa una etiqueta que diga qué cable quedó desconectado, para que nadie use el robot sin USB pensando que tiene alimentación. Sigue con las fases 2 a 4 con la placa alimentada solo por el USB.
+6. Si algún cable quedó desconectado, pega en la placa una etiqueta que lo diga, para que nadie use el robot sin USB pensando que tiene alimentación. Sigue con las fases 2 a 4.
 
 ### 1.5 ¿Striker 1 o Striker 2? (inspección visual)
 
@@ -497,7 +501,7 @@ Lista las redes cercanas con su intensidad. Si aparecen redes, el radio funciona
 
 Revisa esta lista, punto por punto:
 
-- [ ] La [sección 1.4](#14-cómo-se-alimenta-la-placa-en-el-robot) permite conectar USB y batería a la vez, o ya hiciste [1.4.1](#141-si-un-cable-lleva-energía-al-pin-3v3) y los cables que llevan energía a la placa están desconectados y aislados.
+- [ ] Revisaste la [sección 1.4](#14-cómo-se-alimenta-la-placa-en-el-robot): cada cable que lleva energía a la placa ya se midió con [1.4.1](#141-medir-un-cable-que-lleva-energía-a-la-placa), y los que deben quedar desconectados están aislados.
 - [ ] `info` muestra ESP-IDF v5.5.x (P1).
 - [ ] La batería tiene al menos 22,2 V (3,7 V por celda) en reposo, sus celdas están parejas y no está hinchada.
 - [ ] El robot está sobre el soporte, firme, con las tres ruedas en el aire y sin nada cerca.
@@ -673,7 +677,7 @@ Versión de ESP-IDF (idf.py --version y línea ESP-IDF de info):
 - Placa: Flash ___ MB · PSRAM ___ MB · rótulo del módulo ___ · línea Features de esptool ___
 - Puente IN-OUT: abierto / soldado · Puente RGB: abierto / soldado
 - Alimentación de la placa en el robot (1.4): ningún cable le lleva energía / pin 5V / pin 3V3 · de dónde viene ___
-- Cables desconectados en 1.4.1 y tensión medida: ___
+- Cables medidos en 1.4.1 (pin, tensión y si quedaron conectados): ___
 - [M12] Batería: ___S · ___ mAh · conector ___ · total ___ V · celdas ___ / ___ / ___ / ___ / ___ / ___ V
 - [M11] ESC: modelo ___ · corriente ___ A · celdas ___ · BEC / OPTO · pitidos al conectar la batería ___
 - [M16] GPIO 14: libre / ocupado (pin alternativo: ___)
@@ -726,7 +730,7 @@ Batería: inicial ___ V · cada ~20 min ___ · final ___ V
 ## Anexo B — Resumen de una página
 
 1. **Una sola vez:** instalar ESP-IDF v5.5.1 (no una v6.x), descargar el proyecto (rama `main`) y compilar `firmware/apps/striker_hw_test`.
-2. **Inspección:** fotos (placa, módulo, ESC y batería), batería 6S (≥ 22,2 V y celdas parejas), puentes IN-OUT y RGB, alimentación de la placa (1.4; si un cable lleva energía al pin 3V3, 1.4.1), tipo de IMU, marcar ruedas A, B y C (con una raya para contar vueltas; en Striker 1 no giran a mano), medir r y L, revisar GPIO 14.
+2. **Inspección:** fotos (placa, módulo, ESC y batería), batería 6S (≥ 22,2 V y celdas parejas), puentes IN-OUT y RGB, alimentación de la placa (1.4; cada cable que le lleve energía se mide con 1.4.1 antes de conectar la batería), tipo de IMU, marcar ruedas A, B y C (con una raya para contar vueltas; en Striker 1 no giran a mano), medir r y L, revisar GPIO 14.
 3. **Sin batería, por el conector COM:** `python -m esp_idf_monitor -p COM5` (anotar `Project name`) → respaldo con `read-flash 0 ALL` → `idf.py -p COM5 flash monitor`.
 4. **Sin motores:** `info` (ESP-IDF v5.5.x y PSRAM 8 MB) → `identificar` → `robot s1` o `robot s2` → `pines` → `encoders` con las ruedas quietas (ruido y multímetro) → `i2c` → `imu` (giro de 90° girando el soporte) → `wifi` (mejor que −70 dBm).
 5. **Con batería y ruedas en el aire:** conectar batería (nada se mueve; repetir `i2c` e `imu` si fallaron) → `armar` → `motor 1 10 3000`, `motor 2 10 3000`, `motor 3 10 3000` (rueda, posición, signo, rango del encoder y vueltas con video) → lo mismo con `rev` → curva de 10 a 30 % → `girar 10` → opcional: RST con un motor girando → `desarmar` → medir la batería.
