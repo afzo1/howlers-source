@@ -1,0 +1,67 @@
+# Striker v3 - configuracion de ESP-IDF v5.5.1 para firmware/apps/striker_v3.
+# Base: docs/striker_v3/herramientas/sdkconfig_v3.defaults (Entrega 1, seccion 4.5),
+# mas las lineas agregadas al final.
+
+# --- Chip, CPU y flash (YD-ESP32-S3 N16R8) ---
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="particiones_v3.csv"
+
+# --- PSRAM octal de 8 MB ---
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+# Codigo y constantes de la flash se copian a la PSRAM al arrancar: escribir la
+# flash (NVS) ya no desactiva la cache ni detiene al otro nucleo (seccion 4.3).
+CONFIG_SPIRAM_XIP_FROM_PSRAM=y
+# Buffers de WiFi y LwIP en PSRAM, y variables marcadas con EXT_RAM_BSS_ATTR.
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY=y
+
+# --- FreeRTOS ---
+CONFIG_FREERTOS_HZ=1000
+CONFIG_FREERTOS_TIMER_TASK_AFFINITY_CPU0=y
+CONFIG_FREERTOS_USE_TRACE_FACILITY=y
+CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y
+CONFIG_FREERTOS_RUN_TIME_COUNTER_TYPE_U64=y
+CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS=y
+
+# --- Tareas e interrupciones del sistema en el Core 0 ---
+CONFIG_ESP_MAIN_TASK_AFFINITY_CPU0=y
+CONFIG_ESP_TIMER_TASK_AFFINITY_CPU0=y
+CONFIG_ESP_TIMER_ISR_AFFINITY_CPU0=y
+CONFIG_LWIP_TCPIP_TASK_AFFINITY_CPU0=y
+CONFIG_ESP_WIFI_TASK_PINNED_TO_CORE_0=y
+
+# --- Drivers del lazo rapido en IRAM ---
+CONFIG_GPTIMER_ISR_CACHE_SAFE=y
+CONFIG_MCPWM_CTRL_FUNC_IN_IRAM=y
+
+# --- ULP-RISC-V (seccion 4.8) ---
+CONFIG_ULP_COPROC_ENABLED=y
+CONFIG_ULP_COPROC_TYPE_RISCV=y
+CONFIG_ULP_COPROC_RESERVE_MEM=4096
+
+# --- Compilacion representativa del binario final (hallazgo T6) ---
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+CONFIG_LOG_DEFAULT_LEVEL_WARN=y
+
+# --- Volcado de memoria en flash ante una falla, para depurar despues ---
+CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH=y
+
+# Sin gestion de energia (CONFIG_PM_ENABLE queda en su valor por defecto, n):
+# la CPU queda fija en 240 MHz y los ciclos se convierten a tiempo sin error.
+
+# --- Agregado en la Entrega 2 ---
+# Consola solo por UART0 (conector COM): GPIO20 es la senal del motor R en
+# Striker 1 y no puede quedar como linea D+ del USB nativo.
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=115200
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+# Funciones del gptimer en IRAM: su ISR (segura con la cache apagada) lee el
+# contador para medir la latencia.
+CONFIG_GPTIMER_CTRL_FUNC_IN_IRAM=y

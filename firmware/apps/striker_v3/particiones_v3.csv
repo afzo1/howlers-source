@@ -1,0 +1,7 @@
+# Striker v3 - tabla de particiones para la flash de 16 MB (Entrega 1, seccion 4.6).
+# Nombre,     Tipo, Subtipo,  Desplazamiento, Tamano
+nvs,          data, nvs,      0x9000,   0x6000
+phy_init,     data, phy,      0xf000,   0x1000
+factory,      app,  factory,  0x10000,  0x300000
+nvs_striker,  data, nvs,      0x310000, 0x10000
+coredump,     data, coredump, 0x320000, 0x10000
