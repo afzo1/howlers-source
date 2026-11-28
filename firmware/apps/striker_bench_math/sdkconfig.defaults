@@ -1,0 +1,15 @@
+# Misma CPU y optimizacion que striker_v3 (240 MHz, -O2), para que los ciclos
+# medidos aqui valgan para el firmware final.
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+CONFIG_FREERTOS_HZ=1000
+
+# Consola solo por UART0 (conector COM), como striker_hw_test: asi GPIO20, que
+# en Striker 1 es la senal de un motor, no se usa para el USB nativo.
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=115200
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# Version optimizada de esp-dsp (la ANSI se llama aparte, por su nombre).
+CONFIG_DSP_OPTIMIZED=y
