@@ -1,0 +1,5 @@
+## Dependencias del benchmark. Se descargan solas la primera vez que se compila
+## (hace falta internet).
+dependencies:
+  espressif/esp-dsp: "^1.8.0"
+  idf: ">=5.5"
