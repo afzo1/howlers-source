@@ -1,0 +1,33 @@
+grupo,caso,variante,ciclos,us,speedup
+"PID por rueda: un paso (T_ctrl hace 3 por ms)","PID discreto, coef. fijos","double (por software)",938.0,3.909,1.00
+"PID por rueda: un paso (T_ctrl hace 3 por ms)","PID discreto, coef. fijos","float (FPU)",44.0,0.183,21.31
+"PID por rueda: un paso (T_ctrl hace 3 por ms)","PID discreto, coef. fijos","Q16.16 (enteros)",69.0,0.288,13.59
+"PID por rueda: un paso (T_ctrl hace 3 por ms)","pid_ext tal cual","float, coef. en cada paso",357.2,1.488,2.63
+"Filtro y derivada del encoder: un paso por rueda","desenrollado + filtro","double (por software)",496.4,2.068,1.00
+"Filtro y derivada del encoder: un paso por rueda","desenrollado + filtro","float (FPU)",52.0,0.217,9.54
+"Filtro y derivada del encoder: un paso por rueda","desenrollado + filtro","Q16.16 (enteros)",61.0,0.254,8.13
+"Matrices 3x3 (float)","producto A x B","C simple (compilador)",454.3,1.893,1.00
+"Matrices 3x3 (float)","producto A x B","esp-dsp ansi (C)",501.3,2.089,0.91
+"Matrices 3x3 (float)","producto A x B","esp-dsp ae32 (FPU, sin SIMD)",304.2,1.267,1.49
+"Matrices 3x3 (float)","producto A x B","esp-dsp aes3 (SIMD del S3)",318.2,1.326,1.43
+"Matrices 3x3 (float)","producto A x B","esp-dsp 3x3x3 ae32 (fija)",199.0,0.829,2.28
+"Matrices 4x4 (float)","producto A x B","C simple (compilador)",905.6,3.773,1.00
+"Matrices 4x4 (float)","producto A x B","esp-dsp ansi (C)",1039.6,4.332,0.87
+"Matrices 4x4 (float)","producto A x B","esp-dsp ae32 (FPU, sin SIMD)",599.3,2.497,1.51
+"Matrices 4x4 (float)","producto A x B","esp-dsp aes3 (SIMD del S3)",174.1,0.726,5.20
+"Matrices 4x4 (float)","producto A x B","esp-dsp 4x4x4 ae32 (fija)",393.2,1.638,2.30
+"Matrices 6x6 (float)","producto A x B","C simple (compilador)",2597.7,10.824,1.00
+"Matrices 6x6 (float)","producto A x B","esp-dsp ansi (C)",3123.7,13.015,0.83
+"Matrices 6x6 (float)","producto A x B","esp-dsp ae32 (FPU, sin SIMD)",1671.7,6.965,1.55
+"Matrices 6x6 (float)","producto A x B","esp-dsp aes3 (SIMD del S3)",1686.7,7.028,1.54
+"Matrices 8x8 (float)","producto A x B","C simple (compilador)",5704.8,23.770,1.00
+"Matrices 8x8 (float)","producto A x B","esp-dsp ansi (C)",7031.8,29.299,0.81
+"Matrices 8x8 (float)","producto A x B","esp-dsp ae32 (FPU, sin SIMD)",3588.4,14.952,1.59
+"Matrices 8x8 (float)","producto A x B","esp-dsp aes3 (SIMD del S3)",922.7,3.845,6.18
+"Matrices 16x16 (float)","producto A x B","C simple (compilador)",40963.8,170.682,1.00
+"Matrices 16x16 (float)","producto A x B","esp-dsp ansi (C)",52484.2,218.684,0.78
+"Matrices 16x16 (float)","producto A x B","esp-dsp ae32 (FPU, sin SIMD)",24515.4,102.147,1.67
+"Matrices 16x16 (float)","producto A x B","esp-dsp aes3 (SIMD del S3)",6310.9,26.295,6.49
+"EKF de 6 estados: un paso (T_nav, cada 10 ms)","prediccion + 2 correcciones","C simple, 6x6",7899.5,32.914,1.00
+"EKF de 6 estados: un paso (T_nav, cada 10 ms)","prediccion + 2 correcciones","esp-dsp, 6x6 (sin SIMD)",7322.4,30.510,1.08
+"EKF de 6 estados: un paso (T_nav, cada 10 ms)","prediccion + 2 correcciones","esp-dsp, rellenado a 8x8",5220.2,21.751,1.51
