@@ -46,10 +46,12 @@ La carga de cada núcleo es 100 % menos lo que usó su tarea `IDLE0` o `IDLE1` d
 | Arranque | `flash monitor` | Mensaje de inicio y el prompt `v3>` en menos de 1 s |
 | Activaciones | `stats` a los 60 s de un `stats reset` | ~60 000 en `periodo`, 0 perdidas |
 | Periodo | `stats` | `periodo` entre ~995 y ~1005 µs |
-| Latencia de la ISR | `stats` | `lat_isr` del orden de 1–2 µs |
-| Activación | `stats` | `activacion` del orden de 3–10 µs, con poca variación |
-| Captura | `pin_medida 14`, `stats reset`, 60 s, `stats` | `cap_periodo` de 1000 µs ± unos pocos µs, igual a `periodo` |
-| Duración vacía | `stats` con `carga_ctrl 0` | `duracion` y `cap_ancho` menores a 5 µs |
+| Latencia de la ISR | `stats` | `lat_isr` casi constante; en la placa, 3,6 µs (de 3,6 a 3,9) |
+| Activación | `stats` | `activacion` casi constante; en la placa, 12,2 µs, con una variación (jitter) de 1,2 a 4,3 µs |
+| Captura | `pin_medida 14`, `carga_ctrl 20`, `stats reset`, 60 s, `stats` | `cap_periodo` de 1000 µs ± unos pocos µs, igual a `periodo`. Necesita pulsos de algunos µs: con `carga_ctrl 0` el pulso dura ≈ 0,1 µs, la interrupción de la captura no alcanza a atender la subida y sale «sin datos» |
+| Duración vacía | `stats` con `carga_ctrl 0` | `duracion` menor a 5 µs (en la placa, 0,06–0,12 µs) |
 | Cadena de medida | `carga_ctrl 20`, `stats reset`, 60 s, `stats` | `duracion` y `cap_ancho` ≈ 20 µs; carga del Core 1 ≈ 2 % |
 | Multímetro | `carga_ctrl 20` y el multímetro en voltaje DC entre GPIO 14 y GND | Promedio = 20 µs ÷ 1000 µs × V del pin 3V3: ~66 mV con 3,30 V |
-| Reloj externo | `conteo on`, monitor con `--timestamps` 10 min | (activaciones finales − iniciales) ÷ segundos de la PC ≈ 1000 por segundo (±0,01 %) |
+| Reloj externo | Monitor normal y `conteo on`; después `Ctrl+T` y `Ctrl+I`, para que el monitor ponga la hora de la PC en cada línea; 10 min | (activaciones finales − iniciales) ÷ segundos de la PC ≈ 1000 por segundo (±0,01 %). Con `idf.py monitor --timestamps` desde el principio, la consola no dejó escribir el comando |
+
+Resultados medidos en la placa: [`2026-11-28_p2_p3a.md`](../../../docs/striker_v3/pruebas/2026-11-28_p2_p3a.md).

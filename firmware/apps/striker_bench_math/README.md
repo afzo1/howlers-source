@@ -26,8 +26,8 @@ Si la placa solo tiene el USB nativo (sin puerto COM), quitar las líneas de con
 
 ## Qué se espera
 
-- **Ciclos** (orientativo): el PID en double es varias veces más lento que en float (de 5 a 20 veces), porque el S3 no tiene unidad de double y lo hace por software; Q16.16 y float quedan parecidos. En matrices, Espressif reporta 3×3: 200 ciclos con la versión fija frente a 560 con ANSI, y 16×16: 6 280 con `aes3` frente a 56 915 con ANSI. Con 3×3 y 6×6, `aes3` no usa SIMD (las dimensiones deben ser múltiplos de 4 y las matrices estar alineadas a 16 bytes), así que mejora mucho menos que con 4×4, 8×8 y 16×16.
-- **Error de cuantización:** sale igual en la PC y en la placa, así que estos valores sí son exactos:
+- **Ciclos** (orientativo): el PID en double es mucho más lento que en float (en la placa, 21 veces), porque el S3 no tiene unidad de double y lo hace por software; Q16.16 queda algo más lento que float (en la placa, 69 frente a 44 ciclos). En matrices, Espressif reporta 3×3: 200 ciclos con la versión fija frente a 560 con ANSI, y 16×16: 6 280 con `aes3` frente a 56 915 con ANSI. Con 3×3 y 6×6, `aes3` no usa SIMD (las dimensiones deben ser múltiplos de 4 y las matrices estar alineadas a 16 bytes), así que mejora mucho menos que con 4×4, 8×8 y 16×16.
+- **Error de cuantización** (valores de la PC): el de Q16.16 sale idéntico en la placa, porque son cuentas con enteros. El de float cambia un poco: en el S3, el compilador junta cada multiplicación con la suma siguiente en una sola instrucción (`madd.s`), con un solo redondeo. En la placa dio RMS 4,42e-04 en el PID y 8,48e-07 en el filtro ([resultados del 2026-11-28](../../../docs/striker_v3/pruebas/2026-11-28_p2_p3a.md)).
 
   | Cálculo | float frente a double | Q16.16 frente a double |
   |---|---|---|
